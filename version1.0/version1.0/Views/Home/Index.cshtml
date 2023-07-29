@@ -1,0 +1,153 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+
+}
+@using (Html.BeginForm("CreateOrder", "Order", FormMethod.Post, new { id = "orderForm" }))
+{
+    <table class="table">
+        <tr class="span12">
+            <td class="span6"></td>
+            <td class="span6">
+                @Html.Label("Order Date:")
+                @Html.TextBox("orderDate", "", new { type = "date" })
+            </td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <tr class="span12" style="background-color:blue;color:white">
+            <th class="span6">
+                Vendor
+            </th>
+            <th class="span6">
+                Send TO
+            </th>
+        </tr>
+        <tr class="span12">
+            <td class="span6">
+                @Html.DropDownList("DropdownItems1", (IEnumerable<SelectListItem>)ViewBag.Companies, null, new { @class = "form-control" })
+            </td>
+            <td class="span6">
+                @Html.DropDownList("DropdownItems2", (IEnumerable<SelectListItem>)ViewBag.Companies, null, new { @class = "form-control" })
+            </td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <tr class="span12" style="background-color:blue;color:white">
+            <th class="span4">
+                Delivery Method
+            </th>
+            <th class="span4">
+                Payment Terms
+            </th>
+            <th class="span4">
+                Against Quote No
+            </th>
+        </tr>
+        <tr class="span12">
+            <td class="span4">
+                @Html.DropDownList("DropdownItems3", (IEnumerable<SelectListItem>)ViewBag.DeliveryMethods, null, new { @class = "form-control" })
+            </td>
+            <td class="span4">
+                @Html.DropDownList("DropdownItems4", (IEnumerable<SelectListItem>)ViewBag.PaymentTerms, null, new { @class = "form-control" })
+            </td>
+            <td class="span4">
+                @Html.TextBox("againstQuote", "", new { type = "text", placeholder = "againstQuote", @class = "form-control" })
+            </td>
+        </tr>
+    </table>
+
+    <div id="productTable">
+        <table class="table">
+            <tr class="span12" style="background-color:blue;color:white">
+                <th class="span3">
+                    SR No
+                </th>
+                <th class="span3">
+                    Product Name
+                </th>
+                <th class="span2">
+                    Quantity
+                </th>
+                <th class="span2">
+                    Unit Price
+                </th>
+                <th class="span2">
+                    Total
+                </th>
+                <th class="span1"></th>
+            </tr>
+            <tr class="span12">
+                <td class="span3">
+                    <input class="form-control srNo" type="text" value="1" readonly />
+                </td>
+                <td class="span3">
+                    @Html.TextBox("productNames", "", new { @class = "form-control" })
+                </td>
+                <td class="span2">
+                    @Html.TextBox("quantities", "", new { @class = "form-control", type = "number" })
+                </td>
+                <td class="span2">
+                    @Html.TextBox("unitPrices", "", new { @class = "form-control", type = "number" })
+                </td>
+                <td class="span2">
+                    <span class="total"></span>
+                </td>
+                <td class="span1">
+                    <button type="button" class="btn btn-danger remove-row">Remove</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <table class="table">
+        <tr class="span12">
+            <td class="span3">
+                @Html.Label("Total Units:")
+                @Html.TextBox("totalUnits", "", new { @class = "form-control", @readonly = "readonly" })
+            </td>
+            <td class="span3">
+                @Html.Label("Total Price:")
+                @Html.TextBox("totalPrice", "", new { @class = "form-control", @readonly = "readonly" })
+            </td>
+            <td class="span2">
+                @Html.Label("Discount:")
+                @Html.TextBox("discount", "", new { @class = "form-control", type = "number" })
+            </td>
+            <td class="span2">
+                @Html.Label("Other Costs:")
+                @Html.TextBox("otherCosts", "", new { @class = "form-control", type = "number" })
+            </td>
+            <td class="span2">
+                @Html.Label("GST/VAT Rate:")
+                @Html.TextBox("gstVatRate", "", new { @class = "form-control", type = "number" })
+            </td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <tr class="span12">
+            <td class="span6">
+                @Html.Label("Total GST/VAT:")
+                @Html.TextBox("totalGstVat", "", new { @class = "form-control", @readonly = "readonly" })
+            </td>
+            <td class="span6">
+                @Html.Label("Total Price After Added Data:")
+                @Html.TextBox("totalPriceAfterData", "", new { @class = "form-control", @readonly = "readonly" })
+            </td>
+        </tr>
+    </table>
+
+    <button type="button" class="btn btn-primary add-row">Add Product</button>
+
+    <input type="submit" value="Create Order" />
+
+
+    <button type="button" class="btn btn-primary preview">Preview</button>
+
+}
+
+
+

@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+
+    <div class="container body-content">
+        @RenderBody()
+
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+<script>
+    $(document).ready(function () {
+
+
+        function calculateTotal(row) {
+            const quantity = parseFloat($(row).find('input[type="number"][name="quantities"]').val());
+            const unitPrice = parseFloat($(row).find('input[type="number"][name="unitPrices"]').val());
+            const total = quantity * unitPrice || 0;
+            $(row).find('.total').text(total.toFixed(2));
+            calculateTotals();
+        }
+
+        $('.add-row').click(function () {
+            const lastRow = $('#productTable tr').last();
+            const srNo = parseInt(lastRow.find('.srNo').val()) + 1;
+            const newRow = '<tr>' +
+                '<td class="span3"><input class="form-control srNo" type="text" value="' + srNo + '" readonly /></td>' +
+                '<td class="span3"><input class="form-control" type="text" name="productNames" /></td>' +
+                '<td class="span2"><input class="form-control" type="number" name="quantities" /></td>' +
+                '<td class="span2"><input class="form-control" type="number" name="unitPrices" /></td>' +
+                '<td class="span2"><span class="total"></span></td>' +
+                '<td class="span1"><button type="button" class="btn btn-danger remove-row">Remove</button></td>' +
+                '</tr>';
+
+            $('#productTable table').append(newRow);
+        });
+
+        $(document).on('click', '.remove-row', function () {
+            $(this).closest('tr').remove();
+            calculateTotals();
+        });
+
+        $(document).on('input', 'input[type="number"][name="quantities"], input[type="number"][name="unitPrices"]', function () {
+            calculateTotal($(this).closest('tr'));
+        });
+
+        $(document).on('input', 'input[type="number"][name="discount"], input[type="number"][name="otherCosts"]', function () {
+            calculateTotalPriceAfterData();
+        });
+
+        $(document).on('input', 'input[type="number"][name="gstVatRate"]', function () {
+            calculateTotalGstVat();
+        });
+
+        function calculateTotals() {
+            let totalUnits = 0;
+            let totalPrice = 0;
+
+            $('#productTable table tr').each(function (index, row) {
+                if (index > 0) {
+                    const quantity = parseFloat($(row).find('input[name="quantities"]').val());
+                    const unitPrice = parseFloat($(row).find('input[name="unitPrices"]').val());
+                    const total = quantity * unitPrice || 0;
+
+                    totalUnits += quantity;
+                    totalPrice += total;
+                }
+            });
+
+            $('input[name="totalUnits"]').val(totalUnits);
+            $('input[name="totalPrice"]').val(totalPrice.toFixed(2));
+
+            calculateTotalGstVat();
+            calculateTotalPriceAfterData();
+        }
+
+        function calculateTotalGstVat() {
+            const gstVatRate = parseFloat($('input[name="gstVatRate"]').val());
+            const totalPrice = parseFloat($('input[name="totalPrice"]').val());
+
+            const totalGstVat = (totalPrice * gstVatRate) / 100 || 0;
+            $('input[name="totalGstVat"]').val(totalGstVat.toFixed(2));
+
+            calculateTotalPriceAfterData();
+        }
+
+        function calculateTotalPriceAfterData() {
+            const totalPrice = parseFloat($('input[name="totalPrice"]').val());
+            const discount = parseFloat($('input[name="discount"]').val());
+            const otherCosts = parseFloat($('input[name="otherCosts"]').val());
+            const totalGstVat = parseFloat($('input[name="totalGstVat"]').val());
+
+            const totalPriceAfterData = totalPrice - discount + otherCosts + totalGstVat || 0;
+            $('input[name="totalPriceAfterData"]').val(totalPriceAfterData.toFixed(2));
+        }
+        function printOrder(data) {
+            
+           
+         $.ajax({
+            url: '@Url.Action("GenerateOrderPreview", "OrderDatas")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: ,
+            success: function (response) {
+                // Open a new window with the order details
+                //const printWindow = window.open('', '_blank', 'width=800,height=600');
+                //printWindow.document.write(response);
+                //printWindow.document.close();
+                //printWindow.print();
+                console.log(response)
+            },
+            error: function (xhr, status, error) {
+                console.log("Error generating order preview: " + error);
+            }
+        });
+    }
+       
+        document.getElementById("orderForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const orderDate = document.getElementById("orderDate").value;
+            const vendorId = document.getElementById("DropdownItems1").value;
+            const sendToId = document.getElementById("DropdownItems2").value;
+            const deliveryMethod = document.getElementById("DropdownItems3").value;
+            const paymentTerm = document.getElementById("DropdownItems4").value;
+            const againstQuote = document.getElementById("againstQuote").value;
+
+            const products = [];
+            $('#productTable table tr').each(function (index, row) {
+                if (index > 0) {
+                    const productName = $(row).find('input[name="productNames"]').val();
+                    const quantity = parseFloat($(row).find('input[name="quantities"]').val());
+                    const unitPrice = parseFloat($(row).find('input[name="unitPrices"]').val());
+                    const total = quantity * unitPrice || 0;
+
+                    products.push({
+                        productName: productName,
+                        quantity: quantity,
+                        unitPrice: unitPrice,
+                        total: total
+                    });
+                }
+            });
+
+            const totalUnits = parseFloat($('input[name="totalUnits"]').val());
+            const totalPrice = parseFloat($('input[name="totalPrice"]').val());
+            const discount = parseFloat($('input[name="discount"]').val());
+            const otherCosts = parseFloat($('input[name="otherCosts"]').val());
+            const gstVatRate = parseFloat($('input[name="gstVatRate"]').val());
+            const totalGstVat = parseFloat($('input[name="totalGstVat"]').val());
+            const totalPriceAfterData = parseFloat($('input[name="totalPriceAfterData"]').val());
+
+            const data = {
+                orderDate: orderDate,
+                vendorId: vendorId,
+                sendToId: sendToId,
+                deliveryMethod: deliveryMethod,
+                paymentTerm: paymentTerm,
+                againstQuote: againstQuote,
+                products: products,
+                totalUnits: totalUnits,
+                totalPrice: totalPrice,
+                discount: discount,
+                otherCosts: otherCosts,
+                gstVatRate: gstVatRate,
+                totalGstVat: totalGstVat,
+                totalPriceAfterData: totalPriceAfterData
+            };
+
+           
+            const newData = JSON.stringify(data);
+            printOrder(data);
+          
+        //    $.ajax({
+        //    url: '/Order/LogData', 
+        //    type: 'POST',
+        //    dataType: 'json',
+        //    contentType: 'application/json',
+        //    data: JSON.stringify(data),
+        //    success: function (responseData) {
+        //        console.log('Data logged successfully:', responseData);
+               
+        //    },
+        //    error: function (error) {
+        //        console.error('Error logging data:', error);
+                
+        //    }
+        //});
+        });
+
+
+     
+    });
+</script>
+
+</html>
